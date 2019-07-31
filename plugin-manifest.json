@@ -1,0 +1,31 @@
+{
+  "api": {
+    "require_startup_execution": false,
+    "class_name": "com.applicaster.mobile.player.AndroidMobilePlayerAdaptor"
+  },
+  "dependency_repository_url": [
+
+  ],
+  "platform": "android",
+  "author_name": "Juan Hernandez",
+  "author_email": "j.hernandez@applicaster.com",
+  "manifest_version": "0.0.0",
+  "name": "Android Mobile Player",
+  "description": "Player for android mobile devices.",
+  "type": "player",
+  "screen": false,
+  "identifier": "android-mobile-player",
+  "ui_builder_support": true,
+  "dependency_name": "com.applicaster:AndroidMobilePlayer",
+  "dependency_version": "0.0.0",
+  "whitelisted_account_ids": [
+    "5a67970eacc8d7000cf98db0"
+  ],
+  "min_zapp_sdk": "8.0.0",
+  "deprecated_since_zapp_sdk": "",
+  "unsupported_since_zapp_sdk": "",
+  "react_native": false,
+  "custom_configuration_fields": [
+
+  ]
+}
