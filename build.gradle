@@ -1,0 +1,67 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 27
+
+
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+buildscript {
+    ext.kotlin_version = '1.2.0'
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+repositories {
+    google()
+    jcenter()
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.pressenger.com' }
+    maven { // Applicaster
+        credentials {
+            username System.getenv("MAVEN_USERNAME")
+            password System.getenv("MAVEN_PASSWORD")
+        }
+        url 'https://dl.bintray.com/applicaster-ltd/maven'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // Check if an open SDK is defined - if not use the closed one.
+    def devSDK = findProject(':applicaster-android-sdk')
+    if (devSDK != null) {
+        api(project(":applicaster-android-sdk"))
+    } else {
+        api("com.applicaster:applicaster-android-sdk:2.38.0")
+    }
+}
+
+apply from: 'gradle/gradle-bintray-push.gradle'
