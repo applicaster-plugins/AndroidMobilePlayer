@@ -1,9 +1,11 @@
 package com.applicaster.mobile.player
 
+import android.app.Dialog
 import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import com.applicaster.player.defaultplayer.BasePlayer
 import com.applicaster.plugin_manager.playersmanager.Playable
 import com.applicaster.plugin_manager.playersmanager.PlayableConfiguration
@@ -13,7 +15,14 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.applicaster.controller.PlayerLoader
 import com.applicaster.mobile.player.utils.PlayerUtils
 import com.applicaster.player.PlayerLoaderI
+import android.support.v4.content.ContextCompat
+import android.widget.FrameLayout
+import com.google.android.exoplayer2.ui.PlaybackControlView
 
+/**
+ * Big part of this achievement of making the inline player full screen is thanks to this
+ * article https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/
+ */
 
 class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
 
@@ -21,6 +30,12 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
     private var player: SimpleExoPlayer? = null
     private var loader: PlayerLoader? = null
     private var playable: Playable? = null
+    // fullscreen implementation
+    private var mFullScreenDialog: Dialog? = null
+    private var mExoPlayerFullscreen = false
+    private var videoContainerView: ViewGroup? = null
+    private var mFullScreenIcon: ImageView? = null
+    private var mFullScreenButton: FrameLayout? = null
 
     override fun init(playable: Playable, context: Context) {
         this.init(listOf(playable), context)
@@ -40,6 +55,46 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
         val layoutInflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = layoutInflater.inflate(R.layout.inline_player_view, null)
         playerView = view.findViewById(R.id.player)
+        initFullscreenDialog()
+        initFullscreenButton()
+    }
+
+     fun initFullscreenDialog() {
+         mFullScreenDialog = object : Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+             override fun onBackPressed() {
+                 if (mExoPlayerFullscreen)
+                     closeFullscreenDialog()
+                 super.onBackPressed()
+             }
+         }
+     }
+
+    private fun openFullscreenDialog() {
+        (playerView.parent as ViewGroup).removeView(playerView)
+        mFullScreenDialog?.addContentView(playerView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        mFullScreenIcon?.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.icon_fullscreen_skrink))
+        mExoPlayerFullscreen = true
+        mFullScreenDialog?.show()
+    }
+
+    private fun closeFullscreenDialog() {
+        (playerView.parent as ViewGroup).removeView(playerView)
+        videoContainerView?.addView(playerView)
+        mExoPlayerFullscreen = false
+        mFullScreenDialog?.dismiss()
+        mFullScreenIcon?.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.icon_fullscreen_expand))
+    }
+
+    private fun initFullscreenButton() {
+        val controlView: PlaybackControlView = playerView.findViewById(R.id.exo_controller)
+        mFullScreenIcon = controlView.findViewById(R.id.exo_fullscreen_icon)
+        mFullScreenButton = controlView.findViewById(R.id.exo_fullscreen_button)
+        mFullScreenButton?.setOnClickListener {
+            if (!mExoPlayerFullscreen)
+                openFullscreenDialog()
+            else
+                closeFullscreenDialog()
+        }
     }
 
     override fun getPlayerType(): PlayerContract.PlayerType {
@@ -54,6 +109,7 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
     override fun attachInline(videoContainerView: ViewGroup) {
         super.attachInline(videoContainerView)
         videoContainerView.addView(playerView)
+        this.videoContainerView = videoContainerView
     }
 
     override fun playInline(configuration: PlayableConfiguration?) {
