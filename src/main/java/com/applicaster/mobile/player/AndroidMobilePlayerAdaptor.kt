@@ -7,33 +7,19 @@ import com.applicaster.player.defaultplayer.BasePlayer
 import com.applicaster.plugin_manager.playersmanager.Playable
 import com.applicaster.plugin_manager.playersmanager.PlayableConfiguration
 import com.applicaster.plugin_manager.playersmanager.PlayerContract
-import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import com.applicaster.controller.PlayerLoader
+import com.applicaster.mobile.player.utils.PlayerBuilder
 import com.applicaster.player.PlayerLoaderI
 import com.applicaster.model.APModel
 
 
 
-
 class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
-
 
     private lateinit var playerView: PlayerView
     private var player: SimpleExoPlayer? = null
-    private val BANDWIDTH_METER = DefaultBandwidthMeter()
-    private var trackSelector: DefaultTrackSelector? = null
     private var loader: PlayerLoader? = null
     private var playable: Playable? = null
 
@@ -57,6 +43,7 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
 
     override fun playInFullscreen(configuration: PlayableConfiguration?, requestCode: Int, context: Context) {
         super.playInFullscreen(configuration, requestCode, context)
+        // todo: second phase of internal development
     }
 
     override fun attachInline(videoContainerView: ViewGroup) {
@@ -77,45 +64,40 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
     // after the playable is loaded call this method
     private fun play(playable: Playable?) {
         firstPlayable?.let {
-            val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory(BANDWIDTH_METER)
-            trackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
-            // player init
-            player = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
-            // todo: add listener
-            player?.playWhenReady
             // player view
+            this.player = PlayerBuilder().buildPlayer(context)
             playerView.player = player
 
-
-            val httpDataSourceFactory = DefaultHttpDataSourceFactory(
-                    Util.getUserAgent(context, "Applicaster Player"),
-                    BANDWIDTH_METER,
-                    DEFAULT_CONNECT_TIMEOUT_MILLIS,
-                    DEFAULT_READ_TIMEOUT_MILLIS,
-                    true)
-            val mediaDataSourceFactory = DefaultDataSourceFactory(context, BANDWIDTH_METER, httpDataSourceFactory)
-            val mediaSource = HlsMediaSource.Factory(mediaDataSourceFactory)
-                    .createMediaSource(Uri.parse(playable?.contentVideoURL))
-
-            player?.prepare(mediaSource)
+            player?.prepare(PlayerBuilder().buildMediaSource(context,
+                    Uri.parse(playable?.contentVideoURL)))
         }
     }
 
     override fun removeInline(videoContainerView: ViewGroup) {
         super.removeInline(videoContainerView)
         videoContainerView.removeView(playerView)
+        releasePlayer()
     }
 
     override fun stopInline() {
         super.stopInline()
+        releasePlayer()
     }
 
     override fun pauseInline() {
         super.pauseInline()
+        releasePlayer()
     }
 
     override fun resumeInline() {
         super.resumeInline()
+        play(this.playable)
+    }
+
+    private fun releasePlayer() {
+        player?.release()
+        player = null
+        playerView.player = null
     }
 
     // region PlayerLoaderI
@@ -132,7 +114,6 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
         }
 
         return id
-
     }
 
     override fun getPlayable(): Playable? {
@@ -141,7 +122,7 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
 
     override fun onItemLoaded(playable: Playable?) {
         this.playable = playable
-       play(playable)
+        play(playable)
     }
 
     override fun isFinishing(): Boolean {
