@@ -28,11 +28,15 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
 
     override fun init(playableList: List<Playable>, context: Context) {
         super.init(playableList, context)
-        playerView = PlayerView(context)
+        initPlayer()
     }
 
     override fun init(context: Context) {
         super.init(context)
+        initPlayer()
+    }
+
+    fun initPlayer() {
         val layoutInflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = layoutInflater.inflate(R.layout.inline_player_view, null)
         playerView = view.findViewById(R.id.player)
