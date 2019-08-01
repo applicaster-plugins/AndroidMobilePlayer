@@ -20,14 +20,22 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_READ
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.applicaster.controller.PlayerLoader
+import com.applicaster.player.PlayerLoaderI
+import com.applicaster.model.APModel
 
 
-class AndroidMobilePlayerAdaptor : BasePlayer() {
+
+
+class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
+
 
     private lateinit var playerView: PlayerView
     private var player: SimpleExoPlayer? = null
     private val BANDWIDTH_METER = DefaultBandwidthMeter()
     private var trackSelector: DefaultTrackSelector? = null
+    private var loader: PlayerLoader? = null
+    private var playable: Playable? = null
 
     override fun init(playable: Playable, context: Context) {
         this.init(listOf(playable), context)
@@ -58,6 +66,16 @@ class AndroidMobilePlayerAdaptor : BasePlayer() {
 
     override fun playInline(configuration: PlayableConfiguration?) {
         super.playInline(configuration)
+        loadPlayable()
+    }
+
+    private fun loadPlayable() {
+        loader = PlayerLoader(this)
+        loader?.loadItem()
+    }
+
+    // after the playable is loaded call this method
+    private fun play(playable: Playable?) {
         firstPlayable?.let {
             val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory(BANDWIDTH_METER)
             trackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
@@ -77,7 +95,7 @@ class AndroidMobilePlayerAdaptor : BasePlayer() {
                     true)
             val mediaDataSourceFactory = DefaultDataSourceFactory(context, BANDWIDTH_METER, httpDataSourceFactory)
             val mediaSource = HlsMediaSource.Factory(mediaDataSourceFactory)
-                    .createMediaSource(Uri.parse(firstPlayable.contentVideoURL))
+                    .createMediaSource(Uri.parse(playable?.contentVideoURL))
 
             player?.prepare(mediaSource)
         }
@@ -99,4 +117,39 @@ class AndroidMobilePlayerAdaptor : BasePlayer() {
     override fun resumeInline() {
         super.resumeInline()
     }
+
+    // region PlayerLoaderI
+    override fun getItemId(): String? {
+        return getApplicasterModelId()
+    }
+
+    private fun getApplicasterModelId(): String? {
+        var id: String? = null
+
+        if (firstPlayable is APModel) {
+            val model = firstPlayable as APModel
+            id = model.id
+        }
+
+        return id
+
+    }
+
+    override fun getPlayable(): Playable? {
+        return firstPlayable
+    }
+
+    override fun onItemLoaded(playable: Playable?) {
+        this.playable = playable
+       play(playable)
+    }
+
+    override fun isFinishing(): Boolean {
+        TODO("not implemented")
+    }
+
+    override fun showMediaErroDialog() {
+        TODO("not implemented")
+    }
+    // endregion
 }
