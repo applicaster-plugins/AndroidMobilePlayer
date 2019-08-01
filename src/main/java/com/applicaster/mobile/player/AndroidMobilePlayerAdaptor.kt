@@ -2,6 +2,7 @@ package com.applicaster.mobile.player
 
 import android.content.Context
 import android.net.Uri
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.applicaster.player.defaultplayer.BasePlayer
 import com.applicaster.plugin_manager.playersmanager.Playable
@@ -10,10 +11,8 @@ import com.applicaster.plugin_manager.playersmanager.PlayerContract
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
 import com.applicaster.controller.PlayerLoader
-import com.applicaster.mobile.player.utils.PlayerBuilder
+import com.applicaster.mobile.player.utils.PlayerUtils
 import com.applicaster.player.PlayerLoaderI
-import com.applicaster.model.APModel
-
 
 
 class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
@@ -34,7 +33,9 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
 
     override fun init(context: Context) {
         super.init(context)
-        playerView = PlayerView(context)
+        val layoutInflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = layoutInflater.inflate(R.layout.inline_player_view, null)
+        playerView = view.findViewById(R.id.player)
     }
 
     override fun getPlayerType(): PlayerContract.PlayerType {
@@ -65,10 +66,10 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
     private fun play(playable: Playable?) {
         firstPlayable?.let {
             // player view
-            this.player = PlayerBuilder().buildPlayer(context)
+            this.player = PlayerUtils().buildPlayer(context)
             playerView.player = player
 
-            player?.prepare(PlayerBuilder().buildMediaSource(context,
+            player?.prepare(PlayerUtils().buildMediaSource(context,
                     Uri.parse(playable?.contentVideoURL)))
         }
     }
@@ -102,18 +103,7 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
 
     // region PlayerLoaderI
     override fun getItemId(): String? {
-        return getApplicasterModelId()
-    }
-
-    private fun getApplicasterModelId(): String? {
-        var id: String? = null
-
-        if (firstPlayable is APModel) {
-            val model = firstPlayable as APModel
-            id = model.id
-        }
-
-        return id
+        return PlayerUtils().getApplicasterModelId(firstPlayable)
     }
 
     override fun getPlayable(): Playable? {

@@ -6,6 +6,8 @@ import com.applicaster.mobile.player.utils.Constants.APPLICASTER_PLAYER
 import com.applicaster.mobile.player.utils.Constants.FORMAT_M3U8
 import com.applicaster.mobile.player.utils.Constants.FORMAT_MP3
 import com.applicaster.mobile.player.utils.Constants.FORMAT_MP4
+import com.applicaster.model.APModel
+import com.applicaster.plugin_manager.playersmanager.Playable
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -24,7 +26,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 
-class PlayerBuilder {
+class PlayerUtils {
     private val BANDWIDTH_METER = DefaultBandwidthMeter()
 
     fun buildPlayer(context: Context) : SimpleExoPlayer {
@@ -50,5 +52,16 @@ class PlayerBuilder {
         val mediaDataSourceFactory = DefaultDataSourceFactory(context, BANDWIDTH_METER, httpDataSourceFactory)
         return HlsMediaSource.Factory(mediaDataSourceFactory)
                 .createMediaSource(uri)
+    }
+
+    fun getApplicasterModelId(playable: Playable): String? {
+        var id: String? = null
+
+        if (playable is APModel) {
+            val model = playable as APModel
+            id = model.id
+        }
+
+        return id
     }
 }
