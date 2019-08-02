@@ -17,6 +17,7 @@ import com.applicaster.mobile.player.utils.PlayerUtils
 import com.applicaster.player.PlayerLoaderI
 import android.support.v4.content.ContextCompat
 import android.widget.FrameLayout
+import com.applicaster.lesscodeutils.player.PlayerController
 import com.google.android.exoplayer2.ui.PlaybackControlView
 
 /**
@@ -24,7 +25,7 @@ import com.google.android.exoplayer2.ui.PlaybackControlView
  * article https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/
  */
 
-class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
+class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI, PlayerController {
 
     private lateinit var playerView: PlayerView
     private var player: SimpleExoPlayer? = null
@@ -59,15 +60,15 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
         initFullscreenButton()
     }
 
-     fun initFullscreenDialog() {
-         mFullScreenDialog = object : Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
-             override fun onBackPressed() {
-                 if (mExoPlayerFullscreen)
-                     closeFullscreenDialog()
-                 super.onBackPressed()
-             }
-         }
-     }
+    fun initFullscreenDialog() {
+        mFullScreenDialog = object : Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+            override fun onBackPressed() {
+                if (mExoPlayerFullscreen)
+                    closeFullscreenDialog()
+                super.onBackPressed()
+            }
+        }
+    }
 
     private fun openFullscreenDialog() {
         (playerView.parent as ViewGroup).removeView(playerView)
@@ -95,6 +96,14 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
             else
                 closeFullscreenDialog()
         }
+    }
+
+    override fun goFullScreen() {
+        openFullscreenDialog()
+    }
+
+    override fun shrinkFullScreen() {
+        closeFullscreenDialog()
     }
 
     override fun getPlayerType(): PlayerContract.PlayerType {
@@ -142,7 +151,9 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI {
 
     override fun stopInline() {
         super.stopInline()
-        releasePlayer()
+        if (!mExoPlayerFullscreen) {
+            releasePlayer()
+        }
     }
 
     override fun pauseInline() {

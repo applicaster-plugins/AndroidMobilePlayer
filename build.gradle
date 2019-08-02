@@ -65,6 +65,13 @@ dependencies {
 
     api 'com.google.android.exoplayer:exoplayer:2.8.2'
     api 'com.google.android.exoplayer:extension-ima:2.8.2'
+
+    def lessCodeLib = findProject(':LessCodeUtils')
+    if (lessCodeLib != null) {
+        api(project(":LessCodeUtils"))
+    } else {
+        api "com.applicaster:LessCodeUtils-Android:0.0.2"
+    }
 }
 
 apply from: 'gradle/gradle-bintray-push.gradle'
