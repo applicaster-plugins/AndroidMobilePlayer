@@ -7,9 +7,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.util.Pair
+import android.view.View
 import android.view.View.VISIBLE
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ImageView
 import com.applicaster.analytics.AnalyticsAgentUtil
 import com.applicaster.controller.PlayerLoader
 import com.applicaster.mobile.player.utils.Constants.KEY_DEBUG_MODE
@@ -31,6 +33,7 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import com.google.android.exoplayer2.ui.DebugTextViewHelper
+import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -96,7 +99,14 @@ class AndroidMobilePlayerActivity : Activity(), PlayerLoaderI, PlayerControlView
         disableOptions = intent.getBooleanExtra(KEY_DISABLE_OPTIONS, false)
         playable = intent.getSerializableExtra(PLAYABLE_ITEM_KEY) as Playable
 
+        hideFullScreenIcon()
+
         loadPlayable()
+    }
+
+    private fun hideFullScreenIcon() {
+        val controlView: PlaybackControlView = player_view.findViewById(R.id.exo_controller)
+        controlView.findViewById<ImageView>(R.id.exo_fullscreen_icon).visibility = View.GONE
     }
 
     private fun loadPlayable() {

@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.applicaster.util.StringUtil
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 
 
 /**
@@ -45,6 +46,7 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI, PlayerController
     private var videoContainerView: ViewGroup? = null
     private var mFullScreenIcon: ImageView? = null
     private var mFullScreenButton: FrameLayout? = null
+    private val BANDWIDTH_METER = DefaultBandwidthMeter()
 
     override fun init(playable: Playable, context: Context) {
         this.init(listOf(playable), context)
@@ -160,7 +162,7 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI, PlayerController
                     true)
             val mediaDataSourceFactory = DefaultDataSourceFactory(context, BANDWIDTH_METER, httpDataSourceFactory)
             val mediaSource = HlsMediaSource.Factory(mediaDataSourceFactory)
-                    .createMediaSource(Uri.parse("https://telefe.com/Api/Videos/GetSourceUrl/686805/0/HLS"))
+                    .createMediaSource(Uri.parse(it.contentVideoURL))
 
             player?.prepare(mediaSource)
         }
