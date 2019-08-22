@@ -60,7 +60,7 @@ dependencies {
     if (devSDK != null) {
         api(project(":applicaster-android-sdk"))
     } else {
-        api("com.applicaster:applicaster-android-sdk:2.38.0")
+        api("com.applicaster:applicaster-android-sdk:4.0.0")
     }
 
     api 'com.google.android.exoplayer:exoplayer:2.8.2'
