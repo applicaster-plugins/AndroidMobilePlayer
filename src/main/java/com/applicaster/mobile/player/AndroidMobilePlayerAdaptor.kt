@@ -6,6 +6,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
+import com.applicaster.mobile.player.utils.Constants.KEY_DEBUG_MODE
 import com.applicaster.player.defaultplayer.BasePlayer
 import com.applicaster.plugin_manager.playersmanager.Playable
 import com.applicaster.plugin_manager.playersmanager.PlayableConfiguration
@@ -17,8 +18,15 @@ import com.applicaster.mobile.player.utils.PlayerUtils
 import com.applicaster.player.PlayerLoaderI
 import android.support.v4.content.ContextCompat
 import android.widget.FrameLayout
-import com.applicaster.lesscodeutils.player.PlayerController
 import com.google.android.exoplayer2.ui.PlaybackControlView
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.android.exoplayer2.util.Util
+import com.applicaster.util.StringUtil
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+
 
 /**
  * Big part of this achievement of making the inline player full screen is thanks to this
@@ -111,8 +119,11 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI, PlayerController
     }
 
     override fun playInFullscreen(configuration: PlayableConfiguration?, requestCode: Int, context: Context) {
-        super.playInFullscreen(configuration, requestCode, context)
-        // todo: second phase of internal development
+        var debugMode = false
+        pluginConfigurationParams?.let {
+            debugMode = StringUtil.booleanValue(pluginConfigurationParams[KEY_DEBUG_MODE] as String)
+        }
+        AndroidMobilePlayerActivity.launchVideoActivity(context, firstPlayable, debugMode)
     }
 
     override fun attachInline(videoContainerView: ViewGroup) {
@@ -140,6 +151,18 @@ class AndroidMobilePlayerAdaptor : BasePlayer(), PlayerLoaderI, PlayerController
 
             player?.prepare(PlayerUtils().buildMediaSource(context,
                     Uri.parse(playable?.contentVideoURL)))
+
+            val httpDataSourceFactory = DefaultHttpDataSourceFactory(
+                    Util.getUserAgent(context, "Applicaster Player"),
+                    BANDWIDTH_METER,
+                    DEFAULT_CONNECT_TIMEOUT_MILLIS,
+                    DEFAULT_READ_TIMEOUT_MILLIS,
+                    true)
+            val mediaDataSourceFactory = DefaultDataSourceFactory(context, BANDWIDTH_METER, httpDataSourceFactory)
+            val mediaSource = HlsMediaSource.Factory(mediaDataSourceFactory)
+                    .createMediaSource(Uri.parse("https://telefe.com/Api/Videos/GetSourceUrl/686805/0/HLS"))
+
+            player?.prepare(mediaSource)
         }
     }
 

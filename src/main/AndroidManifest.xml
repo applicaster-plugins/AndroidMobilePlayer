@@ -1,2 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.applicaster.mobile.player" />
+    package="com.applicaster.mobile.player">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="false"
+        android:label="${app_name}"
+        android:supportsRtl="false">
+
+        <activity android:name="com.applicaster.mobile.player.AndroidMobilePlayerActivity"
+            android:screenOrientation="landscape"/>
+    </application>
+</manifest>
