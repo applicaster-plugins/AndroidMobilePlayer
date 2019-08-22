@@ -181,6 +181,15 @@ class AndroidMobilePlayerActivity : Activity(), PlayerLoaderI, PlayerControlView
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (Util.SDK_INT <= 23 || player == null) {
+            if (playableLoaded && !playable!!.isLive) {
+                initializePlayer(true)
+            }
+        }
+    }
+
     public override fun onPause() {
         super.onPause()
         AnalyticsAgentUtil.logPlayerEnterBackground()
