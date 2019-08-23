@@ -3,12 +3,12 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -60,7 +60,17 @@ dependencies {
     if (devSDK != null) {
         api(project(":applicaster-android-sdk"))
     } else {
-        api("com.applicaster:applicaster-android-sdk:2.38.0")
+        api("com.applicaster:applicaster-android-sdk:4.0.0")
+    }
+
+    api 'com.google.android.exoplayer:exoplayer:2.8.2'
+    api 'com.google.android.exoplayer:extension-ima:2.8.2'
+
+    def lessCodeLib = findProject(':LessCodeUtils')
+    if (lessCodeLib != null) {
+        api(project(":LessCodeUtils"))
+    } else {
+        api "com.applicaster:LessCodeUtils-Android:0.0.2"
     }
 }
 
