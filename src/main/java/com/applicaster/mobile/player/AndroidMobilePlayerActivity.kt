@@ -183,7 +183,7 @@ class AndroidMobilePlayerActivity : Activity(), PlayerLoaderI, PlayerControlView
 
     override fun onResume() {
         super.onResume()
-        if (Util.SDK_INT <= 23 || player == null) {
+        if (player == null) {
             if (playableLoaded && !playable!!.isLive) {
                 initializePlayer(true)
             }
@@ -194,17 +194,13 @@ class AndroidMobilePlayerActivity : Activity(), PlayerLoaderI, PlayerControlView
         super.onPause()
         AnalyticsAgentUtil.logPlayerEnterBackground()
         savePlayerState()
-        if (Util.SDK_INT <= 23) {
-            releasePlayer()
-        }
+        releasePlayer()
     }
 
     public override fun onStop() {
         super.onStop()
         savePlayerState()
-        if (Util.SDK_INT > 23) {
-            releasePlayer()
-        }
+        releasePlayer()
     }
 
     private fun savePlayerState() {
