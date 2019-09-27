@@ -1,3 +1,8 @@
+-keep public class com.applicaster.mobile.player.AndroidMobilePlayerActivity {
+   public <fields>;
+   public <methods>;
+}
+
 -keep public class com.applicaster.mobile.player.AndroidMobilePlayerAdaptor {
    public <fields>;
    public <methods>;

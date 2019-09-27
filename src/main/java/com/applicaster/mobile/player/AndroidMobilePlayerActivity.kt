@@ -178,6 +178,8 @@ class AndroidMobilePlayerActivity : Activity(), PlayerLoaderI, PlayerControlView
             if (restoringSession) {
                 player.seekTo(startPosition)
             }
+
+            AnalyticsAgentUtil.initPlayerSesssion(playable, null, player.duration.toInt())
         }
     }
 
