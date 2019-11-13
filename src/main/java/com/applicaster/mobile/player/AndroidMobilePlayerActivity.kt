@@ -186,7 +186,7 @@ class AndroidMobilePlayerActivity : Activity(), PlayerLoaderI, PlayerControlView
     override fun onResume() {
         super.onResume()
         if (player == null) {
-            if (playableLoaded && !playable!!.isLive) {
+            if (playableLoaded) {
                 initializePlayer(true)
             }
         }
