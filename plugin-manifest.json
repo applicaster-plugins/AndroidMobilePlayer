@@ -9,7 +9,7 @@
   "platform": "android",
   "author_name": "Juan Hernandez",
   "author_email": "j.hernandez@applicaster.com",
-  "manifest_version": "0.0.5",
+  "manifest_version": "0.0.6",
   "name": "Android Mobile Player",
   "description": "Player for android mobile devices.",
   "type": "player",
@@ -17,7 +17,7 @@
   "identifier": "android-mobile-player",
   "ui_builder_support": true,
   "dependency_name": "com.applicaster:AndroidMobilePlayer",
-  "dependency_version": "0.0.5",
+  "dependency_version": "0.0.6",
   "whitelisted_account_ids": [
     "5a67970eacc8d7000cf98db0"
   ],

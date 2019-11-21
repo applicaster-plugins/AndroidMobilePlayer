@@ -97,7 +97,12 @@ class AndroidMobilePlayerActivity : Activity(), PlayerLoaderI, PlayerControlView
 
         debugMode = intent.getBooleanExtra(KEY_DEBUG_MODE, false)
         disableOptions = intent.getBooleanExtra(KEY_DISABLE_OPTIONS, false)
-        playable = intent.getSerializableExtra(PLAYABLE_ITEM_KEY) as Playable
+        val playableItem = intent.getSerializableExtra(PLAYABLE_ITEM_KEY)
+        if (playableItem is Playable) {
+            playable = playableItem
+        } else {
+            finish()
+        }
 
         hideFullScreenIcon()
 
